@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>解凌云 - 个人名片</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  font-family: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', -apple-system, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  user-select: none; -webkit-user-select: none;
+}
+
+.phone-frame {
+  width: 100%; max-width: 450px; height: 100%;
+  margin: 0 auto; position: relative; overflow: hidden;
+  background: #fff;
+  box-shadow: 0 0 60px rgba(0,0,0,0.08);
+}
+@media (min-width: 500px) {
+  body { display: flex; align-items: center; justify-content: center; background: #dce6f0; }
+  .phone-frame { height: min(100%, 960px); border-radius: 12px; }
+}
+
+/* ===== PAGE SYSTEM ===== */
+.page {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  padding: 52px 24px 40px;
+}
+.page.active { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.page.enter-from-bottom { transform: translateY(60px); }
+.page.enter-from-top { transform: translateY(-60px); }
+
+.s-heading {
+  font-size: 1.6rem; font-weight: 900; letter-spacing: 2px;
+  margin-bottom: 28px; line-height: 1.2; color: #fff;
+}
+
+/* ===== ANIMATIONS ===== */
+@-webkit-keyframes floatUpDown {
+  0%, 100% { -webkit-transform: translateY(0); transform: translateY(0); }
+  50% { -webkit-transform: translateY(-14px); transform: translateY(-14px); }
+}
+@keyframes floatUpDown {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+@-webkit-keyframes floatRotate {
+  0% { -webkit-transform: rotate(0deg) translateY(0); transform: rotate(0deg) translateY(0); }
+  50% { -webkit-transform: rotate(5deg) translateY(-10px); transform: rotate(5deg) translateY(-10px); }
+  100% { -webkit-transform: rotate(0deg) translateY(0); transform: rotate(0deg) translateY(0); }
+}
+@keyframes floatRotate {
+  0% { transform: rotate(0deg) translateY(0); }
+  50% { transform: rotate(5deg) translateY(-10px); }
+  100% { transform: rotate(0deg) translateY(0); }
+}
+@-webkit-keyframes pulse {
+  0%, 100% { opacity: 0.3; -webkit-transform: scale(1); transform: scale(1); }
+  50% { opacity: 0.6; -webkit-transform: scale(1.1); transform: scale(1.1); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.1); }
+}
+@-webkit-keyframes drift {
+  0% { -webkit-transform: translateX(0); transform: translateX(0); }
+  50% { -webkit-transform: translateX(18px); transform: translateX(18px); }
+  100% { -webkit-transform: translateX(0); transform: translateX(0); }
+}
+@keyframes drift {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(18px); }
+  100% { transform: translateX(0); }
+}
+.anim-float { animation: floatUpDown 5s ease-in-out infinite; -webkit-animation: floatUpDown 5s ease-in-out infinite; }
+.anim-float-slow { animation: floatUpDown 7s ease-in-out infinite; -webkit-animation: floatUpDown 7s ease-in-out infinite; }
+.anim-rotate { animation: floatRotate 6s ease-in-out infinite; -webkit-animation: floatRotate 6s ease-in-out infinite; }
+.anim-pulse { animation: pulse 3.5s ease-in-out infinite; -webkit-animation: pulse 3.5s ease-in-out infinite; }
+.anim-drift { animation: drift 7s ease-in-out infinite; -webkit-animation: drift 7s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-circ, .bg-dots, .bg-blob, .bg-ring, .bg-dots-deco,
+  .anim-float, .anim-float-slow, .anim-rotate, .anim-pulse, .anim-drift {
+    animation: none !important; -webkit-animation: none !important;
+  }
+}
+
+/* ===== UNIFIED BLUE PALETTE ===== */
+.p1 {
+  background: linear-gradient(160deg,
+    #1a3a5c 0%, #1e4d8c 16%, #2563eb 34%,
+    #3b82f6 52%, #60a5fa 70%,
+    #93c5fd 86%, #dbeafe 100%
+  );
+}
+.p2 {
+  background: linear-gradient(160deg,
+    #1a3a5c 0%, #1d4d8a 18%, #2563eb 36%,
+    #3b82f6 54%, #60a5fa 72%,
+    #93c5fd 88%, #dbeafe 100%
+  );
+}
+.p3 {
+  background: linear-gradient(160deg,
+    #1e3a5f 0%, #1b4f8a 18%, #2563eb 36%,
+    #458df5 54%, #6aaef8 72%,
+    #9bc8fb 88%, #d4e7fc 100%
+  );
+}
+
+/* ===== SHARED BG ===== */
+.bg-shapes { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.bg-circ {
+  position: absolute; border-radius: 50%;
+  background: rgba(255,255,255,0.18);
+}
+.bg-circ.a { width: 200px; height: 200px; top: -40px; right: -60px; animation: floatUpDown 6s ease-in-out infinite; }
+.bg-circ.b { width: 80px; height: 80px; bottom: 18%; left: -15px; background: rgba(255,255,255,0.22); animation: floatRotate 7s ease-in-out infinite; }
+.bg-circ.c { width: 45px; height: 45px; top: 35%; right: 8%; opacity: 0.7; animation: pulse 4s ease-in-out infinite 1s; }
+
+.bg-dots {
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.14) 1.5px, transparent 1.5px);
+  background-size: 20px 20px;
+}
+.bg-blob {
+  position: absolute; border-radius: 40% 60% 50% 50%;
+  background: rgba(255,255,255,0.12);
+  animation: floatRotate 8s ease-in-out infinite;
+}
+.bg-blob.xl { width: 200px; height: 180px; top: -40px; right: -60px; }
+.bg-blob.sm { width: 100px; height: 110px; bottom: -15px; left: -25px; background: rgba(255,255,255,0.16); animation-delay: 2s; }
+
+.bg-ring {
+  position: absolute; border-radius: 50%;
+  border: 2px dashed rgba(255,255,255,0.18);
+  animation: floatRotate 10s ease-in-out infinite;
+}
+.bg-ring.a { width: 180px; height: 180px; top: -35px; right: -55px; }
+.bg-ring.b { width: 80px; height: 80px; bottom: 10%; left: -15px; border-color: rgba(255,255,255,0.22); animation-delay: 3s; }
+
+.bg-dots-deco {
+  position: absolute; top: 22%; right: 5%;
+  width: 60px; height: 60px;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.16) 2px, transparent 2px);
+  background-size: 12px 12px;
+  animation: drift 9s ease-in-out infinite;
+}
+
+/* ===== PAGE 1: COVER + ABOUT ===== */
+.page.p1 { padding-top: 56px; }
+
+.p1-top {
+  position: relative; z-index: 2;
+  display: flex; align-items: center; gap: 22px;
+  width: 100%; max-width: 380px;
+  margin-bottom: 20px;
+}
+.p1-photo {
+  width: 105px; height: 105px; flex-shrink: 0;
+  border-radius: 26px; overflow: hidden;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.18);
+  border: 3px solid rgba(255,255,255,0.7);
+}
+.p1-photo img {
+  width: 100%; height: 100%; object-fit: cover;
+  object-position: center 18%;
+  display: block;
+}
+
+.p1-text { flex: 1; min-width: 0; }
+.p1-text h1 {
+  font-size: 2.2rem; font-weight: 900; letter-spacing: 3px;
+  color: #fff; line-height: 1.1; margin-bottom: 6px;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.12);
+}
+.p1-text .p1-sub {
+  font-size: 0.82rem; color: rgba(255,255,255,0.75); line-height: 1.5;
+}
+
+.p1-rows {
+  position: relative; z-index: 2;
+  width: 100%; max-width: 380px;
+  display: flex; flex-direction: column; gap: 9px;
+  margin-bottom: 16px;
+}
+.p1-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 14px;
+  border-radius: 13px;
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.25);
+}
+.p1-row-num {
+  width: 34px; height: 34px; flex-shrink: 0;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 0.7rem; color: #fff;
+  background: rgba(255,255,255,0.2);
+}
+.p1-row-info .r1 { display: block; font-size: 0.82rem; font-weight: 700; color: #fff; margin-bottom: 1px; }
+.p1-row-info .r2 { display: block; font-size: 0.73rem; color: rgba(255,255,255,0.7); line-height: 1.35; }
+.p1-row-info .r3 { display: block; font-size: 0.73rem; color: rgba(255,255,255,0.55); line-height: 1.35; margin-top: 1px; }
+
+.p1-intro {
+  position: relative; z-index: 2;
+  max-width: 380px; width: 100%;
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(10px);
+  border-radius: 14px;
+  padding: 14px 16px;
+  border: 1px solid rgba(255,255,255,0.16);
+}
+.p1-intro p {
+  font-size: 0.78rem; color: rgba(255,255,255,0.82); line-height: 1.7;
+}
+
+.p1-hint {
+  position: absolute; bottom: 14px; left: 0; right: 0;
+  text-align: center; font-size: 0.65rem;
+  color: rgba(255,255,255,0.28); letter-spacing: 3px; z-index: 2;
+}
+
+/* ===== PAGE 2: CAREER VISION ===== */
+.p2-inner { position: relative; z-index: 2; width: 100%; max-width: 380px; }
+.p2-blocks { display: flex; flex-direction: column; gap: 24px; }
+
+.p2-card {
+  background: rgba(255,255,255,0.22);
+  backdrop-filter: blur(8px);
+  border-radius: 18px;
+  padding: 24px 20px;
+  border: 1px solid rgba(255,255,255,0.28);
+  border-left: 4px solid rgba(255,255,255,0.4);
+}
+.p2-card.alt { border-left: none; border-right: 4px solid rgba(255,255,255,0.4); }
+
+.p2-card h4 {
+  font-size: 0.95rem; font-weight: 800;
+  color: #fff; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.p2-dot {
+  display: inline-block; width: 8px; height: 8px;
+  background: rgba(255,255,255,0.5); flex-shrink: 0;
+}
+.p2-card p {
+  font-size: 0.84rem; color: rgba(255,255,255,0.82); line-height: 1.85;
+}
+
+/* ===== PAGE 3: GROWTH ===== */
+.p3-inner { position: relative; z-index: 2; width: 100%; max-width: 380px; }
+.p3-timeline {
+  position: relative; display: flex; flex-direction: column; gap: 0;
+}
+.p3-timeline::before {
+  content: ''; position: absolute; left: 26px; top: 8px; bottom: 8px;
+  width: 0; border-left: 2.5px dashed rgba(255,255,255,0.25);
+}
+.p3-step {
+  display: flex; align-items: flex-start; gap: 18px;
+  padding: 18px 0;
+  position: relative;
+}
+.p3-num {
+  width: 52px; height: 52px; flex-shrink: 0;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 1.1rem; color: #fff;
+  z-index: 1;
+  background: rgba(255,255,255,0.25);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+.p3-card {
+  flex: 1;
+  background: rgba(255,255,255,0.22);
+  backdrop-filter: blur(6px);
+  border-radius: 14px;
+  padding: 16px 18px;
+  border: 1px solid rgba(255,255,255,0.28);
+}
+.p3-card strong { display: block; font-size: 0.9rem; color: #fff; margin-bottom: 4px; }
+.p3-card span { font-size: 0.8rem; color: rgba(255,255,255,0.78); line-height: 1.65; }
+
+/* ===== PAGE 4: PERSONAL ===== */
+.p4 {
+  background: linear-gradient(160deg,
+    #1a3a5c 0%, #1e4d8c 16%, #2563eb 34%,
+    #3b82f6 52%, #60a5fa 70%,
+    #93c5fd 86%, #dbeafe 100%
+  );
+}
+.p4-inner {
+  position: relative; z-index: 2; width: 100%; max-width: 380px;
+  text-align: center;
+}
+.p4-slogan {
+  font-size: 2.8rem; font-weight: 900;
+  color: #fff; letter-spacing: 6px;
+  line-height: 1.15; margin-bottom: 12px;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+.p4-line {
+  width: 56px; height: 4px;
+  background: rgba(255,255,255,0.3);
+  margin: 0 auto 24px; border-radius: 2px;
+}
+.p4-quote {
+  font-size: 0.92rem; color: rgba(255,255,255,0.85);
+  line-height: 2.1;
+  margin-bottom: 24px;
+  max-width: 320px; margin-left: auto; margin-right: auto;
+}
+.p4-quote em {
+  font-style: normal; font-weight: 700;
+  color: #fff;
+  background: rgba(255,255,255,0.15);
+  padding: 2px 8px; border-radius: 3px;
+}
+.p4-traits {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  justify-content: center;
+}
+.p4-trait {
+  padding: 8px 16px; border-radius: 20px;
+  font-size: 0.75rem; font-weight: 700;
+  letter-spacing: 0.5px;
+  background: rgba(255,255,255,0.18);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.22);
+  color: rgba(255,255,255,0.85);
+}
+.p4-trait.hl { background: rgba(255,255,255,0.32); color: #fff; }
+
+/* ===== NAVIGATION ===== */
+.tap-area {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 20%; z-index: 5; cursor: pointer;
+}
+.page-indicator {
+  position: absolute; bottom: 16px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; gap: 7px; z-index: 10;
+  pointer-events: none;
+}
+.pi-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  transition: all 0.35s;
+}
+.pi-dot.on { background: rgba(255,255,255,0.65); width: 22px; border-radius: 7px; }
+
+/* ===== AUDIO BUTTON ===== */
+.audio-btn {
+  position: absolute; bottom: 50px; right: 18px;
+  width: 40px; height: 40px; z-index: 20;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.18);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.25);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; color: #fff;
+  transition: all 0.25s;
+  -webkit-tap-highlight-color: transparent;
+}
+.audio-btn:hover { background: rgba(255,255,255,0.3); }
+.audio-btn:active { transform: scale(0.9); }
+.audio-btn.muted { opacity: 0.45; }
+
+@media (max-width: 360px) {
+  .page { padding: 36px 16px 28px; }
+  .p1-top { gap: 14px; }
+  .p1-photo { width: 85px; height: 85px; border-radius: 22px; }
+  .p1-text h1 { font-size: 1.7rem; }
+  .s-heading { font-size: 1.35rem; }
+}
+@media (max-height: 640px) {
+  .page { padding: 24px 16px 18px; }
+  .p1-photo { width: 72px; height: 72px; }
+  .p1-text h1 { font-size: 1.5rem; }
+  .s-heading { font-size: 1.25rem; margin-bottom: 18px; }
+  .p1-rows { gap: 6px; }
+  .p1-row { padding: 8px 10px; }
+  .p4-slogan { font-size: 2rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="phone-frame" id="phoneFrame">
+
+  <div class="audio-btn muted" id="audioBtn" title="语音介绍">&#9835;</div>
+
+  <!-- ===== PAGE 1: COVER + ABOUT ===== -->
+  <div class="page p1 active" data-index="0">
+    <div class="bg-shapes">
+      <div class="bg-circ a"></div><div class="bg-circ b"></div><div class="bg-circ c"></div>
+      <div class="bg-dots"></div>
+    </div>
+
+    <div class="p1-top">
+      <div class="p1-photo">
+        <img src="data:image/jpeg;base64,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" alt="">
+      </div>
+      <div class="p1-text">
+        <h1>解凌云</h1>
+        <p class="p1-sub">很高兴认识大家</p>
+      </div>
+    </div>
+
+    <div class="p1-rows">
+      <div class="p1-row">
+        <div class="p1-row-num">01</div>
+        <div class="p1-row-info">
+          <span class="r1">教育背景</span>
+          <span class="r2">青岛理工大学</span>
+          <span class="r3">软件工程</span>
+        </div>
+      </div>
+      <div class="p1-row">
+        <div class="p1-row-num">02</div>
+        <div class="p1-row-info">
+          <span class="r1">工作岗位</span>
+          <span class="r2">MES开发运维工程师</span>
+        </div>
+      </div>
+      <div class="p1-row">
+        <div class="p1-row-num">03</div>
+        <div class="p1-row-info">
+          <span class="r1">兴趣爱好</span>
+          <span class="r2">跑步</span>
+        </div>
+      </div>
+      <div class="p1-row">
+        <div class="p1-row-num">04</div>
+        <div class="p1-row-info">
+          <span class="r1">所在城市</span>
+          <span class="r2">山东 · 青岛</span>
+          <span class="r3">红瓦绿树，碧海蓝天</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="p1-intro">
+      <p>大家好，我叫解凌云。很高兴认识大家，期待以后的工作中和大家合作愉快！</p>
+    </div>
+
+    <div class="p1-hint">— 点击继续 —</div>
+    <div class="tap-area" data-action="next"></div>
+  </div>
+
+  <!-- ===== PAGE 2: CAREER VISION ===== -->
+  <div class="page p2 enter-from-bottom" data-index="1">
+    <div class="bg-shapes">
+      <div class="bg-circ a"></div><div class="bg-circ b"></div><div class="bg-circ c"></div>
+    </div>
+    <div class="p2-inner">
+      <h2 class="s-heading">职业初心</h2>
+      <div class="p2-blocks">
+        <div class="p2-card">
+          <h4><span class="p2-dot"></span>我的期待</h4>
+          <p>希望能够在工作中不断学习、持续积累，把技术基础打扎实。用学到的技能去解决生产中的实际问题，逐步成长为一名技术专家。</p>
+        </div>
+        <div class="p2-card alt">
+          <h4><span class="p2-dot"></span>一年目标</h4>
+          <p>一年后能够独立解决工作中遇到的大部分问题，可以独当一面，成为团队中值得信赖的一员。</p>
+        </div>
+      </div>
+    </div>
+    <div class="tap-area" data-action="next"></div>
+  </div>
+
+  <!-- ===== PAGE 3: GROWTH ===== -->
+  <div class="page p3 enter-from-bottom" data-index="2">
+    <div class="bg-shapes">
+      <div class="bg-ring a"></div><div class="bg-ring b"></div>
+      <div class="bg-dots-deco"></div>
+    </div>
+    <div class="p3-inner">
+      <h2 class="s-heading">成长路线</h2>
+      <div class="p3-timeline">
+        <div class="p3-step">
+          <div class="p3-num">1</div>
+          <div class="p3-card">
+            <strong>熟悉业务</strong>
+            <span>先把公司的业务流程和系统搞清楚，知道每个环节在做什么、为什么这么做。</span>
+          </div>
+        </div>
+        <div class="p3-step">
+          <div class="p3-num">2</div>
+          <div class="p3-card">
+            <strong>积累经验</strong>
+            <span>多动手、多实践，遇到问题先自己想、自己查，慢慢形成自己的解决思路。</span>
+          </div>
+        </div>
+        <div class="p3-step">
+          <div class="p3-num">3</div>
+          <div class="p3-card">
+            <strong>独当一面</strong>
+            <span>能独立负责一摊事，遇到问题扛得住，成为团队里大家信得过的同事。</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tap-area" data-action="next"></div>
+  </div>
+
+  <!-- ===== PAGE 4: PERSONAL ===== -->
+  <div class="page p4 enter-from-bottom" data-index="3">
+    <div class="bg-shapes">
+      <div class="bg-circ a"></div><div class="bg-blob sm"></div>
+    </div>
+    <div class="p4-inner">
+      <h2 class="s-heading">个性标签</h2>
+      <div class="p4-slogan">稳而有力</div>
+      <div class="p4-line"></div>
+      <p class="p4-quote">
+        不贪快，<em>先把基础打牢</em>。<br>
+        多做、多问、多思考，<br>
+        做一个<em>靠谱</em>、<em>能扛事</em>的人。
+      </p>
+      <div class="p4-traits">
+        <span class="p4-trait hl">做事靠谱</span>
+        <span class="p4-trait">爱琢磨</span>
+        <span class="p4-trait">能坚持</span>
+        <span class="p4-trait">好沟通</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-indicator" id="pageIndicator">
+    <div class="pi-dot on"></div><div class="pi-dot"></div><div class="pi-dot"></div><div class="pi-dot"></div>
+  </div>
+
+</div>
+
+<script>
+(function() {
+  var pages = document.querySelectorAll('.page');
+  var piDots = document.querySelectorAll('.pi-dot');
+  var current = 0, total = pages.length, busy = false;
+
+  // ---- TTS voice (mobile-friendly) ----
+  var audioOn = false;
+  var voiceReady = false;
+  var audioBtn = document.getElementById('audioBtn');
+  var voice = null;
+
+  function pickVoice() {
+    var voices = window.speechSynthesis.getVoices();
+    if (voices.length === 0) return;
+    var preferred = ['Microsoft Kangkang', 'Microsoft Yaoyao', 'Tingting', 'Microsoft Huihui', 'Google 普通话'];
+    for (var i = 0; i < preferred.length; i++) {
+      var v = voices.find(function(vo) { return vo.name.indexOf(preferred[i]) !== -1 && vo.lang.indexOf('zh') !== -1; });
+      if (v) { voice = v; voiceReady = true; return; }
+    }
+    var fallback = voices.find(function(vo) { return vo.lang.indexOf('zh-CN') !== -1 || vo.lang.indexOf('zh') !== -1; });
+    if (fallback) { voice = fallback; voiceReady = true; }
+  }
+
+  // Warm up speech engine with a real utterance on first user tap
+  function initAudio() {
+    if (voiceReady) return;
+    pickVoice();
+    window.speechSynthesis.cancel();
+    // Speak a short syllable to fully activate the engine
+    var warmup = new SpeechSynthesisUtterance('你好');
+    warmup.lang = 'zh-CN';
+    warmup.rate = 1.5;
+    warmup.volume = 0.1;
+    warmup.onend = function() {
+      pickVoice();
+      voiceReady = true;
+    };
+    window.speechSynthesis.speak(warmup);
+    // Also retry in case onend doesn't fire
+    setTimeout(function() {
+      pickVoice();
+      voiceReady = true;
+    }, 600);
+  }
+
+  window.speechSynthesis.onvoiceschanged = pickVoice;
+  pickVoice();
+
+  var narrations = [
+    '大家好，我叫谢凌云，来自山东青岛，毕业于青岛理工大学软件工程专业。目前担任MES开发运维工程师一职。平时我喜欢跑步，闲暇时总会出去跑一跑，虽然算不上专业，但很享受这个过程。非常期待在今后的工作中与大家愉快合作、共同成长！',
+    '未来一年，我希望在工作中持续学习、积累实战经验，不断提升生产效率，攻克技术难关，逐步成长为一名能独当一面的技术专家。期待一年后的自己，能够从容应对大部分生产难题，成为团队靠得住的伙伴。',
+    '我的成长路线规划分三步走：首先，深入熟悉生产的业务全流程，充分理解各环节的运作逻辑，做到心中有数；其次，在实战中持续积累经验，将本岗位与上下游环节的工作经验融会贯通，力争所有问题都有记录、有方案，同样的问题不犯第二次；最后，不仅要能独立解决生产中出现的各类问题，更要具备改进创新的能力，主动优化现有方案、提升效率，最终真正独当一面。',
+    '我的个性标签是稳而有力。做事不贪快，但求每一步踩得实、扎得稳。在稳中求进，确保高质量高效率完成任务。'
+  ];
+
+  function speakPage(index) {
+    if (!audioOn || !voiceReady) return;
+    window.speechSynthesis.cancel();
+    setTimeout(function() {
+      var u = new SpeechSynthesisUtterance(narrations[index]);
+      u.lang = 'zh-CN';
+      u.rate = 1.2;
+      u.pitch = 1;
+      u.volume = 0.9;
+      if (voice) u.voice = voice;
+      window.speechSynthesis.speak(u);
+    }, 200);
+  }
+
+  audioBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    initAudio();
+    audioOn = !audioOn;
+    if (audioOn) {
+      audioBtn.classList.remove('muted');
+      audioBtn.innerHTML = '&#9834;';
+      // Wait for warmup to finish before speaking
+      setTimeout(function() { speakPage(current); }, 700);
+    } else {
+      audioBtn.classList.add('muted');
+      audioBtn.innerHTML = '&#9835;';
+      window.speechSynthesis.cancel();
+    }
+  });
+
+  function goTo(index) {
+    if (busy || index < 0 || index >= total || index === current) return;
+    busy = true;
+    var goingDown = index > current;
+    pages[current].style.opacity = '0';
+    pages[current].style.transform = goingDown ? 'translateY(-45px)' : 'translateY(45px)';
+    pages[current].classList.remove('active');
+    piDots[current].classList.remove('on');
+
+    pages[index].classList.remove('enter-from-bottom', 'enter-from-top');
+    pages[index].classList.add(goingDown ? 'enter-from-bottom' : 'enter-from-top');
+    pages[index].classList.add('active');
+    void pages[index].offsetWidth;
+    pages[index].style.opacity = '1';
+    pages[index].style.transform = 'translateY(0)';
+    piDots[index].classList.add('on');
+    current = index;
+    speakPage(current);
+    setTimeout(function() { busy = false; }, 500);
+  }
+
+  document.querySelectorAll('.tap-area').forEach(function(a) {
+    a.addEventListener('click', function() { goTo(current + 1); });
+  });
+  document.querySelectorAll('.page').forEach(function(p) {
+    p.addEventListener('click', function(e) {
+      var t = e.target;
+      if (t === p || /bg-shapes|bg-circ|bg-dots|bg-blob|bg-dots-deco|bg-ring|anim-/.test(t.className || '')) {
+        goTo(current + 1);
+      }
+    });
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); goTo(current + 1); }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); goTo(current - 1); }
+  });
+  var touchY = 0;
+  document.addEventListener('touchstart', function(e) { touchY = e.touches[0].clientY; }, {passive: true});
+  document.addEventListener('touchend', function(e) {
+    var d = touchY - e.changedTouches[0].clientY;
+    if (Math.abs(d) > 35) { d > 0 ? goTo(current + 1) : goTo(current - 1); }
+  });
+  var wt = null;
+  document.addEventListener('wheel', function(e) {
+    if (wt) return;
+    wt = setTimeout(function() { wt = null; }, 500);
+    if (e.deltaY > 15) goTo(current + 1);
+    else if (e.deltaY < -15) goTo(current - 1);
+  }, {passive: true});
+})();
+</script>
+
+</body>
+</html>
